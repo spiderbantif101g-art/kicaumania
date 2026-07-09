@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Website Test Game</title>
+
+<style>
+body{
+    margin:0;
+    overflow:hidden;
+    background:#222;
+    font-family:Arial;
+}
+
+canvas{
+    display:block;
+    margin:auto;
+    background:#6dc5ff;
+}
+
+#score{
+    position:absolute;
+    left:20px;
+    top:20px;
+    color:white;
+    font-size:30px;
+}
+
+.controls{
+    position:fixed;
+    bottom:30px;
+    width:100%;
+    display:flex;
+    justify-content:center;
+    gap:15px;
+}
+
+button{
+    width:80px;
+    height:80px;
+    font-size:30px;
+    border:none;
+    border-radius:20px;
+    background:#ffffff99;
+}
+</style>
+</head>
+
+<body>
+
+<div id="score">Score: 0</div>
+
+<canvas id="game" width="900" height="500"></canvas>
+
+<div class="controls">
+    <button id="left">⬅️</button>
+    <button id="up">⬆️</button>
+    <button id="down">⬇️</button>
+    <button id="right">➡️</button>
+</div>
+
+<script>
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+let player={
+    x:100,
+    y:100,
+    size:40,
+    speed:5
+};
+
+let coin={
+    x:500,
+    y:250,
+    size:25
+};
+
+let score=0;
+
+const keys={};
+
+document.addEventListener("keydown",e=>{
+    keys[e.key]=true;
+});
+
+document.addEventListener("keyup",e=>{
+    keys[e.key]=false;
+});
+
+function touch(btn,key){
+
+btn.addEventListener("touchstart",e=>{
+e.preventDefault();
+keys[key]=true;
+});
+
+btn.addEventListener("touchend",e=>{
+e.preventDefault();
+keys[key]=false;
+});
+
+}
+
+touch(left,"ArrowLeft");
+touch(right,"ArrowRight");
+touch(up,"ArrowUp");
+touch(down,"ArrowDown");
+
+function randomCoin(){
+
+coin.x=Math.random()*(canvas.width-coin.size);
+coin.y=Math.random()*(canvas.height-coin.size);
+
+}
+
+function update(){
+
+if(keys["ArrowLeft"]) player.x-=player.speed;
+if(keys["ArrowRight"]) player.x+=player.speed;
+if(keys["ArrowUp"]) player.y-=player.speed;
+if(keys["ArrowDown"]) player.y+=player.speed;
+
+player.x=Math.max(0,Math.min(canvas.width-player.size,player.x));
+player.y=Math.max(0,Math.min(canvas.height-player.size,player.y));
+
+if(
+player.x<coin.x+coin.size &&
+player.x+player.size>coin.x &&
+player.y<coin.y+coin.size &&
+player.y+player.size>coin.y
+){
+
+score++;
+document.getElementById("score").innerText="Score: "+score;
+randomCoin();
+
+}
+
+}
+
+function draw(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+ctx.fillStyle="lime";
+ctx.fillRect(player.x,player.y,player.size,player.size);
+
+ctx.fillStyle="gold";
+ctx.beginPath();
+ctx.arc(
+coin.x+coin.size/2,
+coin.y+coin.size/2,
+coin.size/2,
+0,
+Math.PI*2
+);
+ctx.fill();
+
+}
+
+function gameLoop(){
+
+update();
+draw();
+
+requestAnimationFrame(gameLoop);
+
+}
+
+gameLoop();
+
+</script>
+
+</body>
+</html>
